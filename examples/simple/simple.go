@@ -7,7 +7,11 @@ import (
 	imageserver_http "github.com/pierrre/imageserver/http"
 	imageserver_http_parser_graphicsmagick "github.com/pierrre/imageserver/http/parser/graphicsmagick"
 	imageserver_processor "github.com/pierrre/imageserver/processor"
-	imageserver_processor_graphicsmagick "github.com/pierrre/imageserver/processor/graphicsmagick"
+	imageserver_processor_native "github.com/pierrre/imageserver/processor/native"
+	_ "github.com/pierrre/imageserver/processor/native/encoder/gif"
+	_ "github.com/pierrre/imageserver/processor/native/encoder/jpeg"
+	_ "github.com/pierrre/imageserver/processor/native/encoder/png"
+	imageserver_processor_native_nfntresize "github.com/pierrre/imageserver/processor/native/nfntresize"
 	imageserver_provider "github.com/pierrre/imageserver/provider"
 	imageserver_testdata "github.com/pierrre/imageserver/testdata"
 )
@@ -18,8 +22,8 @@ func main() {
 	})
 	server = &imageserver_processor.Server{
 		Server: server,
-		Processor: &imageserver_processor_graphicsmagick.Processor{
-			Executable: "gm",
+		Processor: &imageserver_processor_native.Processor{
+			Processor: &imageserver_processor_native_nfntresize.Processor{},
 		},
 	}
 
@@ -29,6 +33,9 @@ func main() {
 			&imageserver_http_parser_graphicsmagick.Parser{},
 		},
 		Server: server,
+		ErrorFunc: func(err error, request *http.Request) {
+			println(err.Error())
+		},
 	}
 
 	http.Handle("/", handler)
